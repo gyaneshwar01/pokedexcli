@@ -1,64 +1,16 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
+import "github.com/gyaneshwar01/pokedexcli/internal/pokeapi"
 
-type cliCommand struct {
-	name        string
-	description string
-	callback    func() error
+type config struct {
+	pokeapiclient       pokeapi.Client
+	nextLocationAreaURL *string
+	prevLocationAreaURL *string
 }
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	commands := getCliCommands()
-
-	for {
-		fmt.Print("pokedex > ")
-		scanner.Scan()
-		text := scanner.Text()
-
-		if command, ok := commands[text]; ok {
-			command.callback()
-		} else {
-			fmt.Println("Invalid command, try again!")
-		}
+	cfg := &config{
+		pokeapiclient: pokeapi.NewClient(),
 	}
-}
-
-func getCliCommands() map[string]cliCommand {
-	return map[string]cliCommand{
-		"help": {
-			name:        "help",
-			description: "Displays a help message",
-			callback:    commandHelp,
-		},
-		"exit": {
-			name:        "exit",
-			description: "Exit the Pokedex",
-			callback:    commandExit,
-		},
-	}
-}
-
-func commandHelp() error {
-	fmt.Println("\nWelcome to the Pokedex!")
-	fmt.Println("Usage: ")
-	fmt.Println()
-
-	for _, command := range getCliCommands() {
-		fmt.Printf("%s: %s\n", command.name, command.description)
-	}
-
-	fmt.Println()
-
-	return nil
-}
-
-func commandExit() error {
-	os.Exit(0)
-	return nil
+	startRepl(cfg)
 }
